@@ -92,7 +92,7 @@ data "http" "cloudflare_ips" {
 }
 
 locals {
-  cf_ips = jsondecode(data.http.cloudflare_ips.body)
+  cf_ips = jsondecode(data.http.cloudflare_ips.response_body)
 }
 
 resource "aws_security_group" "this" {
@@ -101,7 +101,7 @@ resource "aws_security_group" "this" {
   vpc_id      = aws_vpc.main.id
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
+resource "aws_vpc_security_group_ingress_rule" "allow_web_ipv4" {
   security_group_id = aws_security_group.this.id
   cidr_ipv4         = toset(local.cf_ips.result.ipv4_cidrs)
   from_port         = 80
@@ -109,8 +109,8 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   to_port           = 80
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
-  security_group_id = aws_security_group.allow_tls.id
+resource "aws_vpc_security_group_ingress_rule" "allow_web_ipv6" {
+  security_group_id = aws_security_group.this.id
   cidr_ipv6         = toset(local.cf_ips.result.ipv6_cidrs)
   from_port         = 80
   ip_protocol       = "tcp"
@@ -118,19 +118,19 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.allow_tls.id
+  security_group_id = aws_security_group.this.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-  security_group_id = aws_security_group.allow_tls.id
+  security_group_id = aws_security_group.this.id
   cidr_ipv6         = "::/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
 resource "aws_instance" "this" {
-  ami           = aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
   key_name      = aws_key_pair.deployer.key_name
 
