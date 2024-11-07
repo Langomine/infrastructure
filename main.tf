@@ -98,7 +98,7 @@ locals {
 resource "aws_security_group" "this" {
   name        = "langomine_sg"
   description = "Define rules for Langomine server"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.this.id
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_web_ipv4" {
