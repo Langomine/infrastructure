@@ -102,16 +102,18 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_web_ipv4" {
+  for_each          = toset(local.cf_ips.result.ipv4_cidrs)
   security_group_id = aws_security_group.this.id
-  cidr_ipv4         = toset(local.cf_ips.result.ipv4_cidrs)
+  cidr_ipv4         = each.key
   from_port         = 80
   ip_protocol       = "tcp"
   to_port           = 80
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_web_ipv6" {
+  for_each          = toset(local.cf_ips.result.ipv6_cidrs)
   security_group_id = aws_security_group.this.id
-  cidr_ipv6         = toset(local.cf_ips.result.ipv6_cidrs)
+  cidr_ipv6         = each.key
   from_port         = 80
   ip_protocol       = "tcp"
   to_port           = 80
