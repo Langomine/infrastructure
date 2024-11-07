@@ -72,8 +72,9 @@ data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
+    # https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#Images:visibility=public-images;search=:04dd23e62ed049936;v=3;$case=tags:false%5C,client:false;$regex=tags:false%5C,client:false
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-24.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
   }
 
   owners = ["099720109477"] # Canonical
